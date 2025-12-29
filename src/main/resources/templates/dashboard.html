@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Petunjuk Arah - Light Mode Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --accent: #06b6d4;
+            --bg-light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.7);
+            --border: rgba(0, 0, 0, 0.05);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            color: var(--text-main);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ethereal Mesh Gradient Background */
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.1) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(168, 85, 247, 0.08) 0px, transparent 50%);
+            filter: blur(80px);
+        }
+
+        /* Subtle Noise */
+        .noise::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.02;
+            z-index: -1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.03);
+        }
+
+        .bento-card {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            background: white;
+            border: 1px solid var(--border);
+        }
+
+        .bento-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.15);
+        }
+
+        .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes reveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stagger-1 {
+            animation-delay: 0.1s;
+        }
+
+        .stagger-2 {
+            animation-delay: 0.2s;
+        }
+
+        .stagger-3 {
+            animation-delay: 0.3s;
+        }
+
+        .stagger-4 {
+            animation-delay: 0.4s;
+        }
+
+        /* Modal Animation */
+        .modal-overlay {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .modal-content {
+            animation: modalScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .animate-swing {
+            animation: swing 2s infinite ease-in-out;
+            transform-origin: top center;
+        }
+
+        @keyframes swing {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            20% {
+                transform: rotate(15deg);
+            }
+
+            40% {
+                transform: rotate(-10deg);
+            }
+
+            60% {
+                transform: rotate(5deg);
+            }
+
+            80% {
+                transform: rotate(-5deg);
+            }
+
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 2rem;
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 1.25rem;
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .nav-item i {
+            font-size: 1.25rem;
+        }
+
+        .nav-item span {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 768px) {
+            .bottom-nav {
+                bottom: 1rem;
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+
+<body class="noise min-h-screen">
+    <div class="mesh-bg"></div>
+
+    <!-- Main Container -->
+    <div class="container max-w-7xl mx-auto px-6 py-12 min-h-screen">
+        <!-- Header -->
+        <nav class="flex justify-between items-center mb-16 reveal">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i class="fas fa-compass text-white text-lg"></i>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="/login"
+                    class="text-sm font-semibold text-slate-500 hover:text-indigo-600 transition-colors">Login</a>
+                <a href="/signup"
+                    class="px-6 py-2.5 rounded-full bg-slate-900 text-white text-sm font-bold shadow-xl hover:bg-slate-800 transition-all hover:scale-105 active:scale-95">Sign
+                    Up</a>
+            </div>
+        </nav>
+
+        <!-- Bento Grid Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-4 grid-rows-auto gap-6 pb-20">
+
+            <!-- Hero Card (Span 3x1) -->
+            <div
+                class="md:col-span-3 glass rounded-[2.5rem] p-10 bento-card reveal stagger-1 min-h-[280px] flex flex-col justify-center">
+                <div class="flex items-center gap-6">
+                    <div
+                        class="w-16 h-16 md:w-20 md:h-20 bg-indigo-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-indigo-500/20">
+                        <i class="fas fa-compass text-white text-3xl md:text-4xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl md:text-5xl font-black mb-2 leading-tight tracking-tight text-slate-900">
+                            Lebih <span
+                                class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">Terang.</span>
+                        </h1>
+                        <p class="text-slate-500 text-sm md:text-base font-medium max-w-md">
+                            Navigasi cerdas untuk petualangan yang memukau. Cari tujuanmu sekarang.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Card (Span 1x1) -->
+            <a href="/profile"
+                class="glass rounded-[2.5rem] p-8 bento-card reveal stagger-2 group flex flex-col justify-between">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i class="fas fa-user text-xl text-white"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold mb-2 text-slate-900">Profil Saya</h3>
+                    <p class="text-slate-500 text-sm">Kelola akun & personalisasi</p>
+                </div>
+            </a>
+
+            <!-- Map Card (Span 2x2) -->
+            <div
+                class="md:col-span-2 md:row-span-2 glass rounded-[2.5rem] p-2 bento-card reveal stagger-3 overflow-hidden flex flex-col min-h-[500px]">
+                <div class="p-6 pb-2 flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-slate-900">Peta Interaktif</h3>
+                    <div
+                        class="flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-widest">Aktif</span>
+                    </div>
+                </div>
+                <div id="mini-map" class="flex-grow rounded-[2rem] m-2"></div>
+                <div class="p-6 pt-2 flex justify-end">
+                    <a href="/map"
+                        class="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-2 group">
+                        Buka Peta Penuh <i
+                            class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Notes Card (Span 2x1) -->
+            <div
+                class="md:col-span-2 glass rounded-[2.5rem] p-8 bento-card reveal stagger-4 flex flex-col justify-between">
+                <div class="flex justify-between items-start">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-600">
+                        <i class="fas fa-pen-nib text-xl"></i>
+                    </div>
+                    <a href="/notes"
+                        class="px-4 py-2 rounded-xl bg-slate-100 text-xs font-bold hover:bg-slate-200 transition-colors border border-slate-200 text-slate-900">Lihat
+                        Semua</a>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-2xl font-bold mb-4 text-slate-900">Catatan Terbaru</h3>
+                    <div class="space-y-3">
+                        <div th:each="note : ${recentNotes}"
+                            class="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:border-indigo-100 transition-all shadow-sm">
+                            <div class="flex justify-between items-start">
+                                <h4 th:text="${note.title}" class="font-bold text-sm text-slate-900">Judul Catatan</h4>
+                                <i th:if="${note.alarmTime}"
+                                    class="fas fa-bell text-[10px] text-indigo-600 animate-swing"></i>
+                            </div>
+                            <p th:text="${#strings.abbreviate(note.content, 40)}" class="text-xs text-slate-500 mt-1">
+                                Isi catatan...</p>
+                        </div>
+                        <div th:if="${#lists.isEmpty(recentNotes)}" class="text-center py-4">
+                            <p class="text-xs text-slate-400 font-medium italic">Belum ada catatan terbaru.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Categories (Replacement for Stats & Explore) -->
+            <div class="md:col-span-2 grid grid-cols-2 gap-4 reveal stagger-4">
+                <a href="/explore?category=Wisata"
+                    class="glass rounded-3xl p-6 bento-card flex flex-col justify-between group">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                        <i class="fas fa-mountain"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-slate-900">Wisata</h4>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Destinasi</p>
+                    </div>
+                </a>
+                <a href="/explore?category=Hotel"
+                    class="glass rounded-3xl p-6 bento-card flex flex-col justify-between group">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all">
+                        <i class="fas fa-hotel"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-slate-900">Hotel</h4>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Penginapan</p>
+                    </div>
+                </a>
+                <a href="/explore?category=Kuliner"
+                    class="glass rounded-3xl p-6 bento-card flex flex-col justify-between group">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-slate-900">Kuliner</h4>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Makanan</p>
+                    </div>
+                </a>
+                <a href="/explore?category=Fasilitas"
+                    class="glass rounded-3xl p-6 bento-card flex flex-col justify-between group">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                        <i class="fas fa-gas-pump"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-slate-900">Fasilitas</h4>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Umum</p>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="h-32"></div> <!-- Spacer for Bottom Nav -->
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav reveal stagger-4">
+        <a href="/dashboard" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="/explore" class="nav-item">
+            <i class="fas fa-compass"></i>
+            <span>Explore</span>
+        </a>
+        <a href="/map" class="nav-item">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>Nav</span>
+        </a>
+        <a href="/trip-planner" class="nav-item">
+            <i class="fas fa-route"></i>
+            <span>Trip</span>
+        </a>
+        <a href="/profile" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- Mini Footer -->
+    <footer
+        class="mt-20 pb-12 flex justify-between items-center text-slate-400 text-[10px] font-bold uppercase tracking-widest reveal">
+        <p>&copy; 2025 Petunjuk Arah Light Edition</p>
+        <div class="flex gap-6">
+            <a href="#" class="hover:text-indigo-600 transition-colors">Privasi</a>
+            <a href="#" class="hover:text-indigo-600 transition-colors">Syarat</a>
+        </div>
+    </footer>
+    </div>
+
+    <!-- Alarm Notification Modal -->
+    <div id="alarmModal" class="hidden fixed inset-0 z-[1000] modal-overlay flex items-center justify-center p-6">
+        <div class="glass rounded-[3rem] p-10 max-w-md w-full modal-content bg-white text-center shadow-2xl">
+            <div
+                class="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-indigo-500/30">
+                <i class="fas fa-bell text-white text-4xl animate-swing"></i>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 mb-4">Waktunya Perjalanan!</h2>
+            <p id="alarmNoteTitle" class="text-indigo-600 font-extrabold text-xl mb-6 tracking-tight">Judul Catatan</p>
+            <p class="text-slate-500 text-sm font-medium mb-10">Waktu yang Anda atur untuk pengingat perjalanan ini
+                telah tiba.</p>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="closeAlarm()"
+                    class="w-full py-4 rounded-2xl bg-slate-100 text-slate-900 font-bold text-sm hover:bg-slate-200 transition-all active:scale-95">
+                    Nanti Saja
+                </button>
+                <a href="/map"
+                    class="w-full py-4 rounded-2xl bg-indigo-600 text-white font-bold text-sm shadow-xl shadow-indigo-500/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center">
+                    Buka Peta
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Trip Data for JS -->
+    <div id="tripDataContainer" class="hidden">
+        <div th:each="trip : ${trips}" th:if="${trip.reminderTime != null}"
+            th:attr="data-alarm-time=${trip.reminderTime},data-trip-name=${trip.name}" class="trip-alarm-data"></div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const notes = /*[[${recentNotes}]]*/[];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Map Logic
+            const map = L.map('mini-map', {
+                zoomControl: false,
+                attributionControl: false
+            }).setView([-6.200000, 106.816666], 13);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    map.setView([lat, lon], 14);
+
+                    const customIcon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: "<div style='background-color:#6366f1; width:16px; height:16px; border-radius:50%; border:2px solid white; box-shadow:0 0 15px rgba(99,102,241,0.4)'></div>",
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8]
+                    });
+
+                    L.marker([lat, lon], { icon: customIcon }).addTo(map);
+                });
+            }
+
+            // Alarm Polling Logic
+            // Check every 1 second for precision
+            setInterval(checkAlarms, 1000);
+        });
+
+        function checkAlarms() {
+            const now = new Date();
+            const currentHour = String(now.getHours()).padStart(2, '0');
+            const currentMinute = String(now.getMinutes()).padStart(2, '0');
+            const currentTime = `${currentHour}:${currentMinute}`;
+
+            // Only trigger on 00 seconds to prevent multiple alerts in one minute
+            if (now.getSeconds() !== 0) return;
+
+            const tripElements = document.querySelectorAll('.trip-alarm-data');
+            tripElements.forEach(el => {
+                const alarmTime = el.getAttribute('data-alarm-time'); // HH:mm format
+                const tripName = el.getAttribute('data-trip-name');
+
+                // Compare LocalTime string (e.g. "14:30") with current time
+                if (alarmTime && alarmTime.startsWith(currentTime)) {
+                    showAlarm(tripName);
+                    playSound();
+                }
+            });
+        }
+
+        function playSound() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 880; // A5
+            gainNode.gain.value = 0.5;
+
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), 1000);
+        }
+
+        function showAlarm(title) {
+            const modal = document.getElementById('alarmModal');
+            document.getElementById('alarmNoteTitle').innerText = title;
+            modal.classList.remove('hidden');
+        }
+
+        function closeAlarm() {
+            document.getElementById('alarmModal').classList.add('hidden');
+        }
+        /*]]>*/
+    </script>
+</body>
+
+</html>

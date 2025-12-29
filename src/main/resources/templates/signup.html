@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Daftar - Petunjuk Arah</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --bg-light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.7);
+            --border: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+        }
+
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
+            filter: blur(80px);
+        }
+
+        .noise::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.02;
+            z-index: -1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .glass-container {
+            background: var(--glass);
+            backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid var(--border);
+            border-radius: 3rem;
+            width: 100%;
+            max-width: 480px;
+            padding: 3.5rem;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.05);
+            animation: slideUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .input-modern {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .input-modern:focus {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+
+        .btn-premium {
+            background: #0f172a;
+            color: white;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -10px rgba(15, 23, 42, 0.3);
+            background: #1e293b;
+        }
+    </style>
+</head>
+
+<body class="noise">
+    <div class="mesh-bg"></div>
+
+    <div class="glass-container">
+        <div class="text-center mb-10">
+            <div
+                class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-500/20 mx-auto mb-6">
+                <i class="fas fa-compass text-white text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-black tracking-tight text-slate-900 mb-2">Gabung Sekarang</h1>
+            <p class="text-slate-500 text-sm font-medium">Buat akun premium Anda</p>
+        </div>
+
+        <form th:action="@{/signup}" method="post" class="space-y-6">
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Username</label>
+                <div class="relative group">
+                    <i
+                        class="fas fa-user absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors"></i>
+                    <input type="text" name="username"
+                        class="w-full pl-12 pr-6 py-4 rounded-2xl input-modern text-sm font-medium"
+                        placeholder="Pilih username" required>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Password</label>
+                <div class="relative group">
+                    <i
+                        class="fas fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors"></i>
+                    <input type="password" name="password"
+                        class="w-full pl-12 pr-6 py-4 rounded-2xl input-modern text-sm font-medium"
+                        placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <div th:if="${error}"
+                class="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 text-xs font-bold text-center"
+                th:text="${error}">
+                Terjadi kesalahan.
+            </div>
+
+            <button type="submit"
+                class="w-full py-4 rounded-2xl btn-premium font-bold text-sm shadow-xl active:scale-[0.98] transition-all">
+                Daftar Sekarang
+            </button>
+        </form>
+
+        <div class="mt-10 text-center">
+            <p class="text-slate-500 text-sm font-medium">
+                Sudah punya akun?
+                <a href="/login"
+                    class="text-indigo-600 hover:text-indigo-800 font-bold ml-1 transition-colors">Masuk</a>
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

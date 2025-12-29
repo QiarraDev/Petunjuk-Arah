@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Catatan - Petunjuk Arah</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --bg-light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.7);
+            --border: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            color: #0f172a;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
+            filter: blur(80px);
+        }
+
+        .noise::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.02;
+            z-index: -1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.03);
+        }
+
+        .input-modern {
+            background: white;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .input-modern:focus {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+
+        .sidebar-link {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-link.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3);
+        }
+
+        .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes reveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 2rem;
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            color: #64748b;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 1.25rem;
+        }
+
+        .nav-item.active {
+            background: #6366f1;
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .nav-item i {
+            font-size: 1.25rem;
+        }
+
+        .nav-item span {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .animate-swing {
+            animation: swing 2s infinite ease-in-out;
+            transform-origin: top center;
+        }
+
+        @keyframes swing {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            20% {
+                transform: rotate(15deg);
+            }
+
+            40% {
+                transform: rotate(-10deg);
+            }
+
+            60% {
+                transform: rotate(5deg);
+            }
+
+            80% {
+                transform: rotate(-5deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="noise">
+    <div class="mesh-bg"></div>
+
+    <div class="container max-w-7xl mx-auto px-6 py-12">
+        <!-- Navigation -->
+        <nav class="flex justify-between items-center mb-12 reveal">
+            <a href="/dashboard" class="flex items-center gap-3 group">
+                <div
+                    class="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-slate-200 group-hover:border-indigo-500 transition-colors shadow-sm">
+                    <i class="fas fa-arrow-left text-slate-400 group-hover:text-indigo-600 transition-colors"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold tracking-tighter text-slate-900">Catatanku</h2>
+            </a>
+            <div class="flex items-center gap-4">
+                <div class="text-xs font-bold text-slate-500 uppercase tracking-widest">Halo, Admin</div>
+            </div>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Sidebar: Folders (3 Cols) -->
+            <div class="lg:col-span-3 space-y-6 reveal stagger-1">
+                <div class="glass rounded-[2.5rem] p-6 bg-white overflow-hidden">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Daftar Folder</h3>
+                    <div class="space-y-2">
+                        <a href="/notes"
+                            th:class="${currentFolderId == null ? 'sidebar-link active' : 'sidebar-link text-slate-500 hover:bg-slate-50'} + ' flex items-center justify-between px-5 py-4 rounded-2xl font-bold text-sm'">
+                            <span class="flex items-center gap-3"><i class="fas fa-layer-group"></i> Semua
+                                Catatan</span>
+                        </a>
+                        <div th:each="folder : ${folders}">
+                            <a th:href="@{/notes(folderId=${folder.id})}"
+                                th:class="${currentFolderId == folder.id ? 'sidebar-link active' : 'sidebar-link text-slate-500 hover:bg-slate-50'} + ' flex items-center justify-between px-5 py-4 rounded-2xl font-bold text-sm'">
+                                <span class="flex items-center gap-3 truncate"><i class="fas fa-folder"></i> <span
+                                        th:text="${folder.name}">Folder Name</span></span>
+                                <span th:text="${#lists.size(folder.notes)}"
+                                    class="bg-white/20 text-[10px] px-2 py-0.5 rounded-full">0</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Folder Form -->
+                <div class="glass rounded-[2rem] p-6 bg-white border-dashed border-2">
+                    <form th:action="@{/notes/folder/add}" method="post" class="space-y-4">
+                        <input type="text" name="name"
+                            class="w-full px-4 py-3 rounded-xl input-modern text-xs font-medium"
+                            placeholder="Nama folder baru..." required>
+                        <button type="submit"
+                            class="w-full py-3 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all">
+                            Buat Folder
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Content: Form & List (9 Cols) -->
+            <div class="lg:col-span-9 space-y-8">
+                <!-- Add Note Form Card -->
+                <div class="glass rounded-[3rem] p-10 reveal stagger-2 bg-white">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div
+                            class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                            <i class="fas fa-pen-fancy text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-black text-slate-900">Buat Catatan</h3>
+                            <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Bagikan rencana
+                                perjalanan Anda</p>
+                        </div>
+                    </div>
+                    <form th:action="@{/notes/add}" method="post" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Judul
+                                    Catatan</label>
+                                <input type="text" name="title"
+                                    class="w-full px-6 py-4 rounded-2xl input-modern text-sm font-medium"
+                                    placeholder="Ke mana kita pergi?" required>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Pilih
+                                    Folder</label>
+                                <select name="folderId"
+                                    class="w-full px-6 py-4 rounded-2xl input-modern text-sm font-medium">
+                                    <option value="">Tanpa Folder</option>
+                                    <option th:each="f : ${folders}" th:value="${f.id}" th:text="${f.name}"
+                                        th:selected="${currentFolderId == f.id}">Folder</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Waktu
+                                    Pengingat</label>
+                                <input type="datetime-local" name="alarmTime"
+                                    class="w-full px-6 py-4 rounded-2xl input-modern text-sm font-medium">
+                            </div>
+                        </div>
+                        <div class="space-y-4 flex flex-col">
+                            <div class="space-y-2 flex-grow">
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Isi
+                                    Catatan</label>
+                                <textarea name="content"
+                                    class="w-full h-[calc(100%-2rem)] px-6 py-4 rounded-2xl input-modern text-sm font-medium resize-none"
+                                    placeholder="Tulis detail rencana di sini..." required></textarea>
+                            </div>
+                            <button type="submit"
+                                class="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-500/20 transition-all active:scale-[0.98]">
+                                Simpan Catatan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Notes Grid -->
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="text-xl font-black text-slate-900"
+                            th:text="${currentFolderId != null ? 'Folder: ' + folders.?[id == __${currentFolderId}__][0].name : 'Semua Catatan'}">
+                            Daftar Catatan</h3>
+                        <span th:text="${#lists.size(notes)} + ' Catatan'"
+                            class="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white px-4 py-1.5 rounded-full border border-slate-200 shadow-sm">0
+                            Catatan</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div th:each="note : ${notes}"
+                            class="glass rounded-[2.5rem] p-8 reveal stagger-3 group hover:border-indigo-500 transition-all bg-white relative">
+                            <div class="flex justify-between items-start mb-6">
+                                <span th:if="${note.folder}" th:text="${note.folder.name}"
+                                    class="text-[9px] font-black uppercase tracking-[0.2em] bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full border border-indigo-100">Folder</span>
+                                <span th:unless="${note.folder}"
+                                    class="text-[9px] font-black uppercase tracking-[0.2em] bg-slate-50 text-slate-400 px-3 py-1 rounded-full border border-slate-100">Umum</span>
+
+                                <form th:action="@{/notes/delete/{id}(id=${note.id})}" method="post">
+                                    <button type="submit"
+                                        class="w-8 h-8 rounded-lg text-slate-300 hover:text-red-500 transition-colors">
+                                        <i class="fas fa-trash-alt text-sm"></i>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <h4 th:text="${note.title}" class="text-xl font-bold mb-2 text-slate-900">Judul Catatan</h4>
+
+                            <div th:if="${note.alarmTime}"
+                                class="flex items-center gap-2 mb-4 text-indigo-600 font-bold text-[10px] uppercase tracking-wider">
+                                <i class="fas fa-bell animate-swing"></i>
+                                <span th:text="${#temporals.format(note.alarmTime, 'dd MMM, HH:mm')}">Alarm Time</span>
+                            </div>
+
+                            <p th:text="${note.content}"
+                                class="text-slate-500 text-sm font-medium leading-relaxed mb-8">Konten catatan...</p>
+
+                            <div
+                                class="pt-6 border-t border-slate-50 flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <span th:text="${#temporals.format(note.createdAt, 'dd MMM yyyy')}">Tanggal</span>
+                                <i
+                                    class="fas fa-chevron-right opacity-0 group-hover:opacity-100 transition-opacity translate-x-0 group-hover:translate-x-1 transition-transform"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div th:if="${#lists.isEmpty(notes)}" class="glass rounded-[3rem] p-20 text-center reveal bg-white">
+                        <div class="w-20 h-20 rounded-[2rem] bg-slate-50 flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-folder-open text-3xl text-slate-300"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-400 italic">Belum ada catatan di folder ini.</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav reveal">
+        <a href="/dashboard" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="/explore" class="nav-item">
+            <i class="fas fa-compass"></i>
+            <span>Explore</span>
+        </a>
+        <a href="/map" class="nav-item">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>Nav</span>
+        </a>
+        <a href="/trip-planner" class="nav-item">
+            <i class="fas fa-route"></i>
+            <span>Trip</span>
+        </a>
+        <a href="/profile" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+</body>
+
+</html>

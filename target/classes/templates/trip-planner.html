@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Trip Planner - Petunjuk Arah V2</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #6366f1;
+            --bg-light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.7);
+            --border: rgba(0, 0, 0, 0.05);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            color: var(--text-main);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.05) 0px, transparent 50%);
+            filter: blur(80px);
+        }
+
+        .noise::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.02;
+            z-index: -1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--border);
+        }
+
+        .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes reveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .input-modern {
+            background: white;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .input-modern:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 2rem;
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 1.25rem;
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .nav-item i {
+            font-size: 1.25rem;
+        }
+
+        .nav-item span {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+
+<body class="noise min-h-screen">
+    <div class="mesh-bg"></div>
+
+    <div class="container max-w-7xl mx-auto px-6 py-12 min-h-screen">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-12 reveal">
+            <div>
+                <h2 class="text-3xl font-black tracking-tighter text-slate-900">Trip Planner</h2>
+                <p class="text-slate-500 text-sm font-medium mt-1">Rancang petualanganmu berikutnya</p>
+            </div>
+            <div
+                class="w-12 h-12 bg-white rounded-2xl border border-slate-200 flex items-center justify-center text-indigo-600 shadow-sm">
+                <i class="fas fa-plus-circle text-2xl"></i>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <!-- Planner Form -->
+            <div class="lg:col-span-5">
+                <div class="glass rounded-[3rem] p-10 bg-white shadow-xl reveal stagger-1">
+                    <h3 class="text-xl font-bold text-slate-900 mb-8 border-b border-slate-50 pb-6 ml-1">Buat Rencana
+                        Baru</h3>
+
+                    <form th:action="@{/trip/save}" th:object="${newTrip}" method="post" class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama
+                                Perjalanan</label>
+                            <input type="text" th:field="*{name}"
+                                class="w-full px-6 py-4 rounded-2xl input-modern text-sm font-medium"
+                                placeholder="Misal: Liburan Akhir Tahun" required>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label
+                                    class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tanggal
+                                    Mulai</label>
+                                <input type="date" th:field="*{startDate}"
+                                    class="w-full px-6 py-4 rounded-2xl input-modern text-sm font-medium" required>
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Durasi
+                                    (Hari)</label>
+                                <input type="number" th:field="*{duration}"
+                                    class="w-full px-6 py-4 rounded-2xl input-modern text-sm font-medium" value="1"
+                                    min="1" required>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Set
+                                Alarm</label>
+                            <input type="time" th:field="*{reminderTime}"
+                                class="w-full px-6 py-4 rounded-2xl input-modern text-sm font-medium">
+                        </div>
+
+
+                        <div class="space-y-2">
+                            <label
+                                class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Destinasi
+                                Utama</label>
+                            <div class="relative">
+                                <i
+                                    class="fas fa-map-marker-alt absolute left-6 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                                <input type="text" th:field="*{mainDestination}"
+                                    class="w-full pl-12 pr-6 py-4 rounded-2xl input-modern text-sm font-medium"
+                                    placeholder="Cari kota atau lokasi..." required>
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-500/20 transition-all active:scale-[0.98]">
+                            Simpan Rencana Perjalanan
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Trip List -->
+            <div class="lg:col-span-7 space-y-6">
+                <!-- Empty State -->
+                <div th:if="${#lists.isEmpty(trips)}"
+                    class="flex flex-col justify-center items-center text-center p-12 reveal stagger-2 mt-10">
+                    <div
+                        class="w-32 h-32 bg-indigo-50 rounded-[3rem] flex items-center justify-center mb-10 border-4 border-white shadow-xl">
+                        <i class="fas fa-route text-5xl text-indigo-200"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900 mb-4">Belum ada rencana perjalanan</h3>
+                    <p class="text-slate-500 font-medium max-w-sm leading-relaxed mb-10">
+                        Kamu bisa mulai merancang itinerary perjalananmu dengan menentukan tujuan dan jadwal di form
+                        sebelah
+                        kiri.
+                    </p>
+                </div>
+
+                <!-- Triplist Cards -->
+                <div th:each="trip : ${trips}"
+                    class="glass rounded-[2.5rem] p-8 bg-white/40 border border-white/60 shadow-lg reveal group hover:border-indigo-500 transition-all"
+                    th:attr="data-alarm-time=${trip.reminderTime},data-trip-name=${trip.name}">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="flex gap-2 mb-4">
+                                <span
+                                    class="px-4 py-1.5 bg-indigo-100 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">
+                                    <i class="fas fa-calendar-alt mr-1.5"></i> <span
+                                        th:text="${trip.startDate}">2025-01-01</span>
+                                </span>
+                                <span th:if="${trip.reminderTime != null}"
+                                    class="px-4 py-1.5 bg-amber-100 text-amber-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">
+                                    <i class="fas fa-bell mr-1.5"></i> <span th:text="${trip.reminderTime}">08:00</span>
+                                </span>
+                            </div>
+                            <h3 class="text-2xl font-black text-slate-900 mb-2" th:text="${trip.name}">Nama Perjalanan
+                            </h3>
+                            <div class="flex items-center gap-4 text-xs font-bold text-slate-400">
+                                <span class="flex items-center gap-1.5"><i
+                                        class="fas fa-map-marker-alt text-indigo-500"></i> <span
+                                        th:text="${trip.mainDestination}">Yogyakarta</span></span>
+                                <span class="flex items-center gap-1.5"><i class="fas fa-clock text-slate-300"></i>
+                                    <span th:text="${trip.duration}">3</span> Hari</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button
+                                class="w-12 h-12 rounded-2xl border border-slate-100 bg-white flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button
+                                class="w-12 h-12 rounded-2xl border border-slate-100 bg-white flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${not #lists.isEmpty(trips)}" class="flex gap-4 justify-center mt-10">
+                    <div
+                        class="px-6 py-3 bg-white border border-slate-200 rounded-2xl text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Total Jencana: [[${#lists.size(trips)}]]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="h-32"></div> <!-- Spacer -->
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav reveal stagger-3">
+        <a href="/dashboard" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="/explore" class="nav-item">
+            <i class="fas fa-compass"></i>
+            <span>Explore</span>
+        </a>
+        <a href="/map" class="nav-item">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>Nav</span>
+        </a>
+        <a href="/trip-planner" class="nav-item active">
+            <i class="fas fa-route"></i>
+            <span>Trip</span>
+        </a>
+        <a href="/profile" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script>
+        // Check for alarms every second
+        setInterval(() => {
+            const now = new Date();
+            const currentHour = String(now.getHours()).padStart(2, '0');
+            const currentMinute = String(now.getMinutes()).padStart(2, '0');
+            const currentTime = `${currentHour}:${currentMinute}`;
+
+            // Should also check seconds to trigger only once per minute
+            if (now.getSeconds() !== 0) return;
+
+            document.querySelectorAll('[data-alarm-time]').forEach(card => {
+                const alarmTime = card.getAttribute('data-alarm-time');
+                const tripName = card.getAttribute('data-trip-name');
+
+                // Simple string comparison for HH:mm
+                if (alarmTime && alarmTime.startsWith(currentTime)) {
+                    // Trigger Alarm
+                    playAlarm(tripName);
+                }
+            });
+        }, 1000);
+
+        function playAlarm(tripName) {
+            // Visual alert
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'fixed top-10 left-1/2 -translate-x-1/2 bg-red-500 text-white px-8 py-4 rounded-2xl shadow-2xl z-[2000] flex items-center gap-4 animate-bounce';
+            alertDiv.innerHTML = `
+                <i class="fas fa-bell fa-shake text-2xl"></i>
+                <div class="text-left">
+                    <p class="text-[10px] font-black uppercase tracking-widest opacity-80">ALARM WISATA</p>
+                    <p class="font-bold text-lg">Waktunya untuk trip: ${tripName}!</p>
+                </div>
+            `;
+            document.body.appendChild(alertDiv);
+
+            // Audio alert (beep)
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 880; // A5
+            gainNode.gain.value = 0.5;
+
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), 1000); // Beep for 1 second
+
+            // Auto dismiss visual after 5s
+            setTimeout(() => alertDiv.remove(), 5000);
+        }
+    </script>
+</body>
+
+</html>
