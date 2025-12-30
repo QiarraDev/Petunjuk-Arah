@@ -1,5 +1,6 @@
 com/antigravity/petunjukarah/service/OverpassService.class
 com/antigravity/petunjukarah/entity/Trip.class
+com/antigravity/petunjukarah/controller/ApiController.class
 com/antigravity/petunjukarah/entity/Note.class
 com/antigravity/petunjukarah/controller/TripController.class
 com/antigravity/petunjukarah/controller/HomeController.class
